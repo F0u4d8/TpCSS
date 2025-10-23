@@ -17,7 +17,7 @@ export class AuthController {
         return;
       }
 
-      const user = await authService.register({ email, password });
+      const user = await authService.register({ username,email, password });
 
       res.status(201).json({
         message: 'User registered successfully',
@@ -60,6 +60,55 @@ export class AuthController {
       }
       console.error('Login error:', error);
       res.status(500).json({ error: 'Login failed' });
+    }
+  }
+
+
+
+
+
+   async getProfile(req: Request, res: Response): Promise<void> {
+    try {
+      // In Phase 1, we trust the userId from the request
+      // ⚠️ Anyone can claim to be any user!
+      const userId = parseInt(req.params.id);
+
+      if (isNaN(userId)) {
+        res.status(400).json({ error: 'Invalid user ID' });
+        return;
+      }
+
+      const user = await authService.getUserById(userId);
+
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+
+      res.json({ 
+        user,
+        warning: '⚠️ Phase 1: Backend cannot verify this request is from the actual user!'
+      });
+    } catch (error) {
+      console.error('Profile error:', error);
+      res.status(500).json({ error: 'Failed to get profile' });
+    }
+  }
+
+  /**
+   * Get all users (admin-like endpoint)
+   * ⚠️ INSECURE: No authorization check!
+   */
+  async getAllUsers(req: Request, res: Response): Promise<void> {
+    try {
+      const users = await authService.getAllUsers();
+      res.json({ 
+        users,
+        warning: '⚠️ Phase 1: Anyone can access this - no authorization!'
+      });
+    } catch (error) {
+      console.error('Get users error:', error);
+      res.status(500).json({ error: 'Failed to get users' });
     }
   }
 }

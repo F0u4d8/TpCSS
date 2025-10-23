@@ -27,6 +27,7 @@ const user = await prisma.user.create({
   data: {
     email,
     password, // ⚠️ Plaintext password
+    username:username
   },
 });
 
@@ -87,4 +88,23 @@ return {
   email: user.email,
 };
 }
+
+
+
+
+async getAllUsers(): Promise<UserResponse[]> {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+      },
+    });
+
+    return users.map(user => ({
+      id: user.id,
+      email: user.email,
+    }));
+  }
 }
+
