@@ -1,0 +1,16 @@
+# Security Testing Dependencies
+# Install with: pip install -r requirements.txt
+
+requests>=2.31.0
+pandas>=2.0.0
+colorama>=0.4.6
+
+# Optional: For Jupyter Notebook
+jupyter>=1.0.0
+notebook>=7.0.0
+ipykernel>=6.25.0
+
+# Optional: For advanced analysis
+tabulate>=0.9.0
+matplotlib>=3.7.0
+

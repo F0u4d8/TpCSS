@@ -37,8 +37,8 @@ process.exit();
 
 // Start server
 app.listen(PORT, () => {
-    console.log(' Server running on http://localhost:3000');
-console.log('📊 API endpoints: http://localhost:3000/api/auth');
-console.log('⚠️ WARNING: Phase 1 - INSECURE by design');
-console.log('📊 Prisma Studio: npx prisma studio');
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 API endpoints: http://localhost:${PORT}/api/auth`);
+  console.log('⚠️ WARNING: Phase 1 - INSECURE by design');
+  console.log('📊 Prisma Studio: npx prisma studio');
 });
