@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { RegisterRequest, LoginRequest } from '../types/auth.types';
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
 
 const authService = new AuthService();
 
@@ -35,7 +36,7 @@ export class AuthController {
 
   /**
    * Login endpoint handler
-   * ⚠️ INSECURE: Just returns user data, no token/session
+   * Phase 2: Will return user data with authentication token
    */
   async login(req: Request, res: Response): Promise<void> {
     try {
@@ -48,10 +49,13 @@ export class AuthController {
 
       const user = await authService.login({ email, password });
 
-      // ⚠️ Phase 1: Just return user data, no authentication mechanism!
+      // Phase 2: Return user data with a placeholder for proper authentication
+      // In a real implementation, we would generate a JWT token here
       res.json({
         message: 'Login successful',
         user,
+        // In a future implementation, we would return a JWT token
+        // token: generateToken(user.id)
       });
     } catch (error: any) {
       if (error.message === 'INVALID_CREDENTIALS') {
@@ -67,14 +71,19 @@ export class AuthController {
 
 
 
-   async getProfile(req: Request, res: Response): Promise<void> {
+   async getProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      // In Phase 1, we trust the userId from the request
-      // ⚠️ Anyone can claim to be any user!
+      // The userId is now verified via middleware
       const userId = parseInt(req.params.id);
 
       if (isNaN(userId)) {
         res.status(400).json({ error: 'Invalid user ID' });
+        return;
+      }
+
+      // Verify this is the authenticated user's profile
+      if (req.userId !== userId) {
+        res.status(403).json({ error: 'Access denied: You can only access your own profile' });
         return;
       }
 
@@ -85,9 +94,9 @@ export class AuthController {
         return;
       }
 
-      res.json({ 
+      res.json({
         user,
-        warning: '⚠️ Phase 1: Backend cannot verify this request is from the actual user!'
+        message: 'Profile retrieved successfully'
       });
     } catch (error) {
       console.error('Profile error:', error);
@@ -99,12 +108,19 @@ export class AuthController {
    * Get all users (admin-like endpoint)
    * ⚠️ INSECURE: No authorization check!
    */
-  async getAllUsers(req: Request, res: Response): Promise<void> {
+  async getAllUsers(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
+      // For Phase 2, we'll only allow authenticated users to access this endpoint
+      // In a real app, we might add role-based access control here
+      
+      // Note: We're not checking for admin status in this phase
+      // That would be Phase 3 functionality
+      
       const users = await authService.getAllUsers();
-      res.json({ 
+      res.json({
         users,
-        warning: '⚠️ Phase 1: Anyone can access this - no authorization!'
+        message: 'Users retrieved successfully',
+        authenticatedUserId: req.userId // For debugging - remove in production
       });
     } catch (error) {
       console.error('Get users error:', error);
